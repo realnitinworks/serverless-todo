@@ -31,6 +31,7 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
         - dynamodb:Query
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
     - Effect: Allow
@@ -65,7 +66,6 @@ functions:
             schema:
               application/json: ${file(src/validation/models/create-todo-model.json)}
 
-  # TODO: Configure this function
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
@@ -73,6 +73,9 @@ functions:
           method: patch
           path: todos/{todoId}
           cors: true
+          request:
+            schema:
+              application/json: ${file(src/validation/models/update-todo-model.json)}
 
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
