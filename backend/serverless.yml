@@ -21,8 +21,8 @@ provider:
 
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    TODOS_TABLE: ToDos-${self:provider.stage}
-    TODO_ID_INDEX: TodoIdIndex
+    TODOS_TABLE: Todos-${self:provider.stage}
+    CREATED_AT_INDEX: CreatedAtIndex
     DUE_DATE_INDEX: DueDateIndex
 
   iamRoleStatements:
@@ -36,7 +36,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:Query
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODO_ID_INDEX}
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.CREATED_AT_INDEX}
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -74,7 +74,6 @@ functions:
           path: todos/{todoId}
           cors: true
 
-  # TODO: Configure this function
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
@@ -100,23 +99,23 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: createdAt
-            AttributeType: S
           - AttributeName: todoId
+            AttributeType: S
+          - AttributeName: createdAt
             AttributeType: S
           - AttributeName: dueDate
             AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: createdAt
+          - AttributeName: todoId
             KeyType: RANGE
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODO_ID_INDEX}
+          - IndexName: ${self:provider.environment.CREATED_AT_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
-              - AttributeName: todoId
+              - AttributeName: createdAt
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL
