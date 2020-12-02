@@ -54,7 +54,6 @@ functions:
           path: todos
           cors: true
 
-  # TODO: Configure this function
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
@@ -62,6 +61,9 @@ functions:
           method: post
           path: todos
           cors: true
+          request:
+            schema:
+              application/json: ${file(src/validation/models/create-todo-model.json)}
 
   # TODO: Configure this function
   UpdateTodo:
