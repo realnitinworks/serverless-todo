@@ -3,6 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
+import { getUserId } from "../utils"
 
 
 const docClient = new AWS.DynamoDB.DocumentClient();
@@ -13,7 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   console.log("Processing event: ", event);
   
   const newTodo: CreateTodoRequest = JSON.parse(event.body);
-  const userId = "123"; // Hard-code for now
+  const userId = getUserId(event);
   const todoId = uuid.v4();
   const createdAt = new Date().toISOString();
   const done = false;
