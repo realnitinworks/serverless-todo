@@ -1,32 +1,20 @@
 import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
+
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
-import * as AWS from 'aws-sdk'
 import { getUserId } from "../utils"
-
-
-const docClient = new AWS.DynamoDB.DocumentClient();
-const todosTable = process.env.TODOS_TABLE;
+import { TodoItem } from '../../models/TodoItem'
+import { updateTodo, getTodo } from '../../businessLogic/todos'
 
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log("Processing event: ", event);
 
-  const userId = getUserId(event);
-  const todoId = event.pathParameters.todoId;
-  const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
+  const userId: string = getUserId(event);
+  const todoId: string = event.pathParameters.todoId;
+  const updatedTodo: UpdateTodoRequest = JSON.parse(event.body);
 
-  const result = await docClient.get({
-    TableName: todosTable,
-    Key: {
-      userId,
-      todoId
-    }
-  }).promise();
-
-  const todo = result.Item;
-  console.log("Todo: ", todo);
-
+  const todo: TodoItem = await getTodo(userId, todoId);
   if (!todo) {
     return {
       statusCode: 404,
@@ -39,26 +27,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     }
   }
 
-  const name = updatedTodo.name === undefined ? todo.name : updatedTodo.name;
-  const dueDate = updatedTodo.dueDate === undefined ? todo.dueDate : updatedTodo.dueDate;
-  const done = updatedTodo.done === undefined ? todo.done : updatedTodo.done;
-
-  await docClient.update({
-    TableName: todosTable,
-    Key: {
-      userId,
-      todoId
-    },
-    UpdateExpression: "set #N = :name, dueDate = :dueDate, done = :done",
-    ExpressionAttributeValues: {
-      ":name": name,
-      ":dueDate": dueDate,
-      ":done": done
-    },
-    ExpressionAttributeNames: {
-      "#N": "name"
-    }
-  }).promise();
+  await updateTodo(todo, updatedTodo);
 
   return {
     statusCode: 200,
