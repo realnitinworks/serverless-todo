@@ -61,6 +61,7 @@ functions:
           method: get
           path: todos
           cors: true
+          authorizer: Auth
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -69,6 +70,7 @@ functions:
           method: post
           path: todos
           cors: true
+          authorizer: Auth
           request:
             schema:
               application/json: ${file(src/validation/models/create-todo-model.json)}
@@ -80,6 +82,7 @@ functions:
           method: patch
           path: todos/{todoId}
           cors: true
+          authorizer: Auth
           request:
             schema:
               application/json: ${file(src/validation/models/update-todo-model.json)}
@@ -91,6 +94,7 @@ functions:
           method: delete
           path: todos/{todoId}
           cors: true
+          authorizer: Auth
 
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
@@ -99,9 +103,22 @@ functions:
           method: post
           path: todos/{todoId}/attachment
           cors: true
+          authorizer: Auth
 
 resources:
   Resources:
+    
+    GatewayResponseDefault4XX:  # Required to satisfy CORS if Authorization is not granted
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
     TodosDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
