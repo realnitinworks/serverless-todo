@@ -1,12 +1,14 @@
 import 'source-map-support/register'
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import * as middy from 'middy'
+import { cors } from 'middy/middlewares'
 
 import { getUserId } from "../utils"
 import { deleteTodo, getTodo } from '../../businessLogic/todos';
 import { TodoItem } from '../../models/TodoItem'
 
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.log("Processing event: ", event);
   
   const userId: string = getUserId(event);
@@ -16,9 +18,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   if (!todo) {
     return {
       statusCode: 404,
-      headers: {
-        'Access-Control-Allow-Origin': '*'
-      },
       body: JSON.stringify({
         "error": `todo#${todoId} does not exist`
       })
@@ -29,9 +28,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   
   return {
     statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
     body: ""
   }
-}
+});
+
+
+handler.use(
+  cors({
+    credentials: true
+  })
+);
