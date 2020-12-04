@@ -54,3 +54,13 @@ export async function updateTodo(
     updatedTodo.done = updatedTodo.done === undefined ? todo.done : updatedTodo.done;
     await todoAccess.updateTodo(todo, updatedTodo);
 }
+
+
+export function generatePreSignedUploadUrl(todoId: string) {
+    return todoAccess.generatePreSignedUploadUrl(todoId);
+}
+
+
+export async function updateAttachmentUrl(userId: string, todoId: string) {
+    await todoAccess.updateAttachmentUrl(userId, todoId);
+}
