@@ -1,13 +1,21 @@
-import { DocumentClient } from "aws-sdk/clients/dynamodb";
+import * as AWS from 'aws-sdk';
+import * as AWSXRay from 'aws-xray-sdk';
+import { DocumentClient } from 'aws-sdk/clients/dynamodb';
+import { S3 } from 'aws-sdk';
+
 import { TodoItem } from "../models/TodoItem";
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
-import { S3 } from "aws-sdk";
+
+
+
+const XAWS = AWSXRay.captureAWS(AWS);
+
 
 export class TodoAccess {
 
     constructor(
-        private readonly docClient: DocumentClient = new DocumentClient(),
-        private readonly s3 = new S3({ signatureVersion: 'v4'}),
+        private readonly docClient: DocumentClient = new XAWS.DynamoDB.DocumentClient(),
+        private readonly s3: S3 = new XAWS.S3({ signatureVersion: 'v4'}),
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly createdAtIndex = process.env.CREATED_AT_INDEX,
         private readonly bucketName = process.env.ATTACHMENTS_S3_BUCKET,

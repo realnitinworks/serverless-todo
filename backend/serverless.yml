@@ -27,6 +27,10 @@ provider:
     ATTACHMENTS_S3_BUCKET: serverless-todo-nitin-ab123de-attachments-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
+  tracing:
+    lambda: true
+    apiGateway: true
+
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
