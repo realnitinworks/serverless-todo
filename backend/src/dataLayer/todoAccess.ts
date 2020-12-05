@@ -5,9 +5,10 @@ import { S3 } from 'aws-sdk';
 
 import { TodoItem } from "../models/TodoItem";
 import { UpdateTodoRequest } from "../requests/UpdateTodoRequest";
+import { createLogger } from "../utils/logger"
 
 
-
+const logger = createLogger('todoAccess');
 const XAWS = AWSXRay.captureAWS(AWS);
 
 
@@ -26,112 +27,175 @@ export class TodoAccess {
 
 
     async getTodo(userId: string, todoId: string): Promise<TodoItem> {
-        console.log(`Getting todo with id: ${todoId} for user: ${userId}`);
+        logger.info(`Getting todo with id: ${todoId} for user: ${userId}`);
 
-        const result = await this.docClient.get({
-            TableName: this.todosTable,
-            Key: {
-                userId,
-                todoId
-            }
-        }).promise();
+        try {
+            const result = await this.docClient.get({
+                TableName: this.todosTable,
+                Key: {
+                    userId,
+                    todoId
+                }
+            }).promise();
 
-        return result.Item as TodoItem;
+            logger.info(`Got todo successfully`)
+
+            return result.Item as TodoItem;
+        }
+        catch (error) {
+            logger.error(`Failed to get todo#${todoId} from DB`, {
+                error
+            });
+        }        
     }
 
 
     async getTodos(userId: string): Promise<TodoItem[]> {
-        console.log(`Getting all todos for user: ${userId}`);
+        logger.info(`Getting all todos for user: ${userId}`);
 
-        const result = await this.docClient.query({
-            TableName: this.todosTable,
-            IndexName: this.createdAtIndex,
-            KeyConditionExpression: 'userId = :userId',
-            ExpressionAttributeValues: {
-                ':userId': userId
-            },
-            ScanIndexForward: false
-        }).promise();
+        try {
+            const result = await this.docClient.query({
+                TableName: this.todosTable,
+                IndexName: this.createdAtIndex,
+                KeyConditionExpression: 'userId = :userId',
+                ExpressionAttributeValues: {
+                    ':userId': userId
+                },
+                ScanIndexForward: false
+            }).promise();
 
-        const todos = result.Items;
+            const todos = result.Items;
 
-        return todos as TodoItem[];
+            logger.info(`Got all todos`, {
+                items: todos
+            })
+
+            return todos as TodoItem[];
+        }
+        catch (error) {
+            logger.error(`Failed to get todos from DB`, {
+                error
+            });
+        }
     }
 
 
     async createTodo(todo: TodoItem): Promise<TodoItem> {
-        console.log(`Creating todo with id: ${todo.todoId} for user: ${todo.userId}`)
+        logger.info(`Creating todo with id: ${todo.todoId} for user: ${todo.userId}`)
         
-        await this.docClient.put({
-            TableName: this.todosTable,
-            Item: todo
-        }).promise();
+        try {
+            await this.docClient.put({
+                TableName: this.todosTable,
+                Item: todo
+            }).promise();
 
-        return todo as TodoItem;
+            logger.info(`Created todo successfully`);
+
+            return todo as TodoItem;
+        }
+        catch (error) {
+            logger.error(`Failed to create todo in DB`, {
+                error
+            });
+        }
     }
 
 
     async deleteTodo(userId: string, todoId: string) {
-        console.log(`Delete todo with id: ${todoId} for user: ${userId}`);
+        logger.info(`Delete todo with id: ${todoId} for user: ${userId}`);
 
-        await this.docClient.delete({
-            TableName: this.todosTable,
-            Key: {
-                userId,
-                todoId
-            }
-        }).promise();
+        try {
+            await this.docClient.delete({
+                TableName: this.todosTable,
+                Key: {
+                    userId,
+                    todoId
+                }
+            }).promise();
+
+            logger.info(`Deleted todo successfully`);
+
+        }
+        catch (error) {
+            logger.error(`Failed to delete todo from DB`, {
+                error
+            });
+        }
     }
 
 
     async updateTodo(todo: TodoItem, updatedTodo: UpdateTodoRequest) {
-        console.log(`Updating todo with id: ${todo.todoId} for user: ${todo.userId}`)
+        logger.info(`Updating todo with id: ${todo.todoId} for user: ${todo.userId}`)
     
-        await this.docClient.update({
-            TableName: this.todosTable,
-            Key: {
-                userId: todo.userId,
-                todoId: todo.todoId
-            },
-            UpdateExpression: "set #N = :name, dueDate = :dueDate, done = :done",
-            ExpressionAttributeValues: {
-                ":name": updatedTodo.name,
-                ":dueDate": updatedTodo.dueDate,
-                ":done": updatedTodo.done
-            },
-            ExpressionAttributeNames: {
-                "#N": "name"
-            }
-        }).promise();
+        try {
+            await this.docClient.update({
+                TableName: this.todosTable,
+                Key: {
+                    userId: todo.userId,
+                    todoId: todo.todoId
+                },
+                UpdateExpression: "set #N = :name, dueDate = :dueDate, done = :done",
+                ExpressionAttributeValues: {
+                    ":name": updatedTodo.name,
+                    ":dueDate": updatedTodo.dueDate,
+                    ":done": updatedTodo.done
+                },
+                ExpressionAttributeNames: {
+                    "#N": "name"
+                }
+            }).promise();
+
+            logger.info(`Updated todo successfully`);
+        }
+        catch (error) {
+            logger.error(`Failed to update todo in DB`, {
+                error
+            });
+        }
     }
 
 
     generatePreSignedUploadUrl(todoId: string) {
-        console.log(`Getting pre-signed url for todoId: ${todoId}`)
+        logger.info(`Getting pre-signed url for todoId: ${todoId}`)
 
-        return this.s3.getSignedUrl('putObject', {
-            Bucket: this.bucketName,
-            Key: todoId,
-            Expires: this.urlExpiration
-        })
+        try {
+            return this.s3.getSignedUrl('putObject', {
+                Bucket: this.bucketName,
+                Key: todoId,
+                Expires: this.urlExpiration
+            })
+        }
+        catch (error) {
+            logger.error(`Failed to get pre-signed url for upload`, {
+                error
+            });
+        }
     }
 
 
     async updateAttachmentUrl(userId: string, todoId: string) {
-        console.log(`Updating attachmentUrl of todoId: ${todoId} for userId: ${userId}`);
+        logger.info(`Updating attachmentUrl of todoId: ${todoId} for userId: ${userId}`);
 
         const attachmentUrl = `https://${this.bucketName}.s3.amazonaws.com/${todoId}`
 
-        await this.docClient.update({
-            TableName: this.todosTable,
-            Key: {
-                userId,
-                todoId
-            },
-            UpdateExpression: "set attachmentUrl = :attachmentUrl",
-            ExpressionAttributeValues: {
-                ":attachmentUrl": attachmentUrl
-            }
-        }).promise();
+        try {
+            await this.docClient.update({
+                TableName: this.todosTable,
+                Key: {
+                    userId,
+                    todoId
+                },
+                UpdateExpression: "set attachmentUrl = :attachmentUrl",
+                ExpressionAttributeValues: {
+                    ":attachmentUrl": attachmentUrl
+                }
+            }).promise();
+            logger.info(`Updated todo with attachment url successfully`);
+        }
+        catch (error) {
+            logger.error(`Failed to update todo with attachment url`, {
+                error
+            });
+        }
     }
 }

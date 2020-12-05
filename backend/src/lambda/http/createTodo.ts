@@ -7,16 +7,20 @@ import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 import { getUserId } from "../utils"
 import { createTodo } from '../../businessLogic/todos'
 import { TodoItem } from '../../models/TodoItem'
+import { createLogger } from "../../utils/logger"
 
+
+const logger = createLogger('createTodo');
 
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log("Processing event: ", event);
+  logger.info("Processing event for creating a todo", {
+    event
+  });
   
   const createTodoRequest: CreateTodoRequest = JSON.parse(event.body);
   const userId: string = getUserId(event);
   const newTodo: TodoItem = await createTodo(userId, createTodoRequest);
-
 
   return {
     statusCode: 201,
