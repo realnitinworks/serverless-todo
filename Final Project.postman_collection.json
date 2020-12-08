@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d0700d24-79ec-487e-8403-b565bef7f8e0",
+		"_postman_id": "938be101-9351-4be3-902e-a6b96268d211",
 		"name": "Udacity C4 Project",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -19,23 +19,49 @@
 								"type": "text"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"raw": "https://{{apiId}}.execute-api.ap-south-1.amazonaws.com/dev/todos",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"ap-south-1",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
 								"todos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all todos sorted by dueDate",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{apiId}}.execute-api.ap-south-1.amazonaws.com/dev/todos/dueDate",
+							"protocol": "https",
+							"host": [
+								"{{apiId}}",
+								"execute-api",
+								"ap-south-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"todos",
+								"dueDate"
 							]
 						}
 					},
@@ -60,15 +86,15 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"Water flowers\",\n\t\"dueDate\": \"2019-06-11\"\n}"
+							"raw": "{\n\t\"name\": \"Water plants\",\n\t\"dueDate\": \"2020-12-09\"\n}"
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos",
+							"raw": "https://{{apiId}}.execute-api.ap-south-1.amazonaws.com/dev/todos",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"ap-south-1",
 								"amazonaws",
 								"com"
 							],
@@ -83,7 +109,7 @@
 				{
 					"name": "Update todo",
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -99,22 +125,22 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"name\": \"Change the world\",\n\t\"dueDate\": \"2019-12-11\",\n\t\"done\": true\n}"
+							"raw": "{\n\t\"name\": \"Pray for the World!\",\n    \"dueDate\": \"2012-12-08\",\n    \"done\": true\n}"
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/35dd600f-43c2-4649-903c-615e1586a26f",
+							"raw": "https://{{apiId}}.execute-api.ap-south-1.amazonaws.com/dev/todos/5ebcfad7-4b1f-4f8c-87e9-1aef299fa41c",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"ap-south-1",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
 								"todos",
-								"35dd600f-43c2-4649-903c-615e1586a26f"
+								"5ebcfad7-4b1f-4f8c-87e9-1aef299fa41c"
 							]
 						}
 					},
@@ -142,19 +168,19 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/fe671583-4512-45f6-9475-4265c04362fb",
+							"raw": "https://{{apiId}}.execute-api.ap-south-1.amazonaws.com/dev/todos/757198b2-dd7e-4e4a-908e-a97b63d0926f",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"ap-south-1",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
 								"todos",
-								"fe671583-4512-45f6-9475-4265c04362fb"
+								"757198b2-dd7e-4e4a-908e-a97b63d0926f"
 							]
 						}
 					},
@@ -176,19 +202,19 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{apiId}}.execute-api.us-east-1.amazonaws.com/dev/todos/3836b777-9bc4-4429-9b79-ba4e4f5f91c0/attachment",
+							"raw": "https://{{apiId}}.execute-api.ap-south-1.amazonaws.com/dev/todos/a975ea5b-e692-402e-8c3f-2b10370d8090/attachment",
 							"protocol": "https",
 							"host": [
 								"{{apiId}}",
 								"execute-api",
-								"us-east-1",
+								"ap-south-1",
 								"amazonaws",
 								"com"
 							],
 							"path": [
 								"dev",
 								"todos",
-								"3836b777-9bc4-4429-9b79-ba4e4f5f91c0",
+								"a975ea5b-e692-402e-8c3f-2b10370d8090",
 								"attachment"
 							]
 						}
@@ -200,7 +226,7 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "ce2b42d4-8cc5-4f30-a6ed-e7f0f303c3fd",
+						"id": "4da40cc4-8a3f-4be8-bd7f-e9410f3d5e8e",
 						"type": "text/javascript",
 						"exec": [
 							""
@@ -210,21 +236,22 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "efb16c49-3866-4241-97d1-360ad72736d8",
+						"id": "55dc0521-f3d9-4f20-ab5c-f0ea92f518eb",
 						"type": "text/javascript",
 						"exec": [
 							""
 						]
 					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "2e83c0fe-6650-44d5-a90f-4c27ff720d83",
+				"id": "95bd0c5f-09e3-411a-b559-69778688c82a",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -234,7 +261,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "977c227e-2df3-42eb-9a48-ec25e2f7eeae",
+				"id": "0131d9d8-5e69-4974-97b5-ebc52d269f65",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -244,16 +271,15 @@
 	],
 	"variable": [
 		{
-			"id": "bf208e6b-f66d-4008-9366-dd541ff65425",
+			"id": "ccacb130-7c28-4bcb-a432-806dc5b47670",
 			"key": "apiId",
-			"value": "",
-			"type": "string"
+			"value": ""
 		},
 		{
-			"id": "9bc6399a-d2bb-4f2d-9ffa-8480370d383c",
+			"id": "d143f6ae-e162-4331-a33c-6ca663bf5e1f",
 			"key": "authToken",
-			"value": "",
-			"type": "string"
+			"value": ""
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
