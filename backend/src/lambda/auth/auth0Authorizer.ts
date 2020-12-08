@@ -54,10 +54,18 @@ export const handler = async (event: CustomAuthorizerEvent): Promise<CustomAutho
 
 
 async function getCertificate() {
-  const response = await Axios.get(jwksUrl);
-  const startLine: string = "-----BEGIN CERTIFICATE-----\n";
-  const endLine: string = "\n-----END CERTIFICATE-----";
-  return `${startLine}${response.data.keys[0]["x5c"][0]}${endLine}`;  
+  try {
+    const response = await Axios.get(jwksUrl);
+    const startLine: string = "-----BEGIN CERTIFICATE-----\n";
+    const endLine: string = "\n-----END CERTIFICATE-----";
+    return `${startLine}${response.data.keys[0]["x5c"][0]}${endLine}`; 
+  }
+  catch(error) {
+    logger.error('Failed to get certificate', {
+      error
+    })
+    return ""
+  }
 }
 
 
