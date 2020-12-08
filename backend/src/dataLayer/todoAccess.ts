@@ -19,6 +19,7 @@ export class TodoAccess {
         private readonly s3: S3 = new XAWS.S3({ signatureVersion: 'v4'}),
         private readonly todosTable = process.env.TODOS_TABLE,
         private readonly createdAtIndex = process.env.CREATED_AT_INDEX,
+        private readonly dueDateIndex = process.env.DUE_DATE_INDEX,
         private readonly bucketName = process.env.ATTACHMENTS_S3_BUCKET,
         private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ) {
@@ -67,6 +68,36 @@ export class TodoAccess {
             const todos = result.Items;
 
             logger.info(`Got all todos`, {
+                items: todos
+            })
+
+            return todos as TodoItem[];
+        }
+        catch (error) {
+            logger.error(`Failed to get todos from DB`, {
+                error
+            });
+        }
+    }
+
+
+    async getTodosSortedByDueDate(userId: string): Promise<TodoItem[]> {
+        logger.info(`Getting all todos for user: ${userId} sorted by dueDate`);
+
+        try {
+            const result = await this.docClient.query({
+                TableName: this.todosTable,
+                IndexName: this.dueDateIndex,
+                KeyConditionExpression: 'userId = :userId',
+                ExpressionAttributeValues: {
+                    ':userId': userId
+                },
+                ScanIndexForward: true
+            }).promise();
+
+            const todos = result.Items;
+
+            logger.info(`Got all todos sorted by dueDate`, {
                 items: todos
             })
 

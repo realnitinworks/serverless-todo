@@ -19,6 +19,11 @@ export async function getTodos(userId: string): Promise<TodoItem[]> {
 }
 
 
+export async function getTodosSortedByDueDate(userId: string): Promise<TodoItem[]> {
+    return todoAccess.getTodosSortedByDueDate(userId);
+}
+
+
 export async function createTodo(
     userId: string,
     createTodoRequest: CreateTodoRequest
